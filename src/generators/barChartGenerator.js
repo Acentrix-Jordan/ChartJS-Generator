@@ -1,6 +1,6 @@
 import QuickChart from "quickchart-js";
 
-export const generateBarChart = async (data, labels, currency = "£") => {
+export const generateBarChart = async (data, labels) => {
 	const myChart = new QuickChart();
 	myChart.setConfig({
 		type: "horizontalBar",
@@ -21,25 +21,28 @@ export const generateBarChart = async (data, labels, currency = "£") => {
 		},
 		options: {
 			plugins: {
-				legend: {
-					display: false,
+				legend: false,
+				tickFormat: {
+					notation: "compact",
+					currency: "GBP",
 				},
 			},
 			scales: {
 				xAxes: [
 					{
 						ticks: {
-							color: "#ffffff",
+							fontColor: "#fff",
 							callback: function (value) {
 								return "£" + value;
 							},
+							beginAtZero: true,
 						},
 					},
 				],
 				yAxes: [
 					{
 						ticks: {
-							color: "#ffffff",
+							fontColor: "#fff",
 						},
 					},
 				],
@@ -47,7 +50,7 @@ export const generateBarChart = async (data, labels, currency = "£") => {
 			indexAxis: "y",
 		},
 	});
-	myChart.setVersion("2.9.4");
+	// myChart.setVersion("2.9.4");
 	myChart.setWidth("750");
 	myChart.setHeight("450");
 	myChart.setFormat("svg");

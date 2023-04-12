@@ -1,10 +1,6 @@
 import QuickChart from "quickchart-js";
 
-export const generateDoughnutChart = async (
-	data,
-	labels,
-	title = "Enter a title"
-) => {
+export const generateDoughnutChart = async (data, labels) => {
 	const myChart = new QuickChart();
 	myChart.setConfig({
 		type: "doughnut",
@@ -13,7 +9,6 @@ export const generateDoughnutChart = async (
 			datasets: [
 				{
 					data: data,
-					label: title,
 					backgroundColor: [
 						"#c27653",
 						"#b63e63",
@@ -21,26 +16,49 @@ export const generateDoughnutChart = async (
 						"#342492",
 						"#31799a",
 					],
+					datalabels: {
+						formatter: (value) => value + "%",
+						labels: {
+							index: {
+								color: "#fff",
+								font: {
+									size: 18,
+								},
+								formatter: (val, ctx) =>
+									ctx.chart.data.labels[ctx.dataIndex],
+								align: "end",
+								anchor: "end",
+							},
+							value: {
+								color: "#404040",
+								backgroundColor: "#fff",
+								borderColor: "#fff",
+								borderWidth: 2,
+								borderRadius: 4,
+								padding: 4,
+								align: "bottom",
+							},
+						},
+					},
 				},
 			],
 		},
 		options: {
-			plugins: {
-				legend: {
-					display: false,
+			legend: {
+				display: false,
+			},
+			layout: {
+				padding: {
+					top: 30,
+					bottom: 30,
 				},
 			},
-			scales: {
-				x: {
-					display: false,
-				},
-				y: {
-					display: false,
-				},
-			},
-			indexAxis: "y",
 		},
 	});
+	myChart.setWidth("750");
+	myChart.setHeight("450");
+	myChart.setFormat("svg");
+	myChart.setBackgroundColor("transparent");
 
 	const url = await myChart.getShortUrl();
 

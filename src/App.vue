@@ -1,44 +1,55 @@
 <template>
-	<main>
-		<h1>Chart Generator</h1>
-		<div>
-			<form action="">
-				<p>
-					Data <strong>MUST</strong> be pipe seperated.<br />
-					Example: 1 | 2 | 3 | 4
-				</p>
-				<input
-					type="text"
-					placeholder="Data"
-					v-model="chartData.data"
-					id="data"
-				/>
-				<p>
-					Labels <strong>MUST</strong> be pipe seperated.<br />
-					Example: 2019 | 2020 | 2021 | 2022
-				</p>
-				<input
-					type="text"
-					placeholder="Labels"
-					v-model="chartData.labels"
-				/>
-				<select
-					placeholder="Chart Type"
-					v-model="chartData.type"
-				>
-					<option value="bar">Bar</option>
-					<option value="doughnut">Doughnut</option>
-					<option value="pie">Pie</option>
-				</select>
-				<button @click.prevent="generateChart">Generate Chart</button>
-				<button>Download Image</button>
-			</form>
-			<div>
+	<img
+		src="../public/assets/agencies-bg.png"
+		alt="Decorative Background"
+		class="bg-image"
+	/>
+	<v-container>
+		<h1 class="text-h3 mb-16 mt-8">Agencies Chart Generator</h1>
+		<v-row>
+			<v-col>
+				<v-form>
+					<p>
+						Data <strong>MUST</strong> be pipe seperated.<br />
+						Example: 1 | 2 | 3 | 4
+					</p>
+					<v-text-field
+						type="text"
+						placeholder="Data"
+						v-model="chartData.data"
+						id="data"
+					/>
+					<p>
+						Labels <strong>MUST</strong> be pipe seperated.<br />
+						Example: 2019 | 2020 | 2021 | 2022
+					</p>
+					<v-text-field
+						type="text"
+						placeholder="Labels"
+						v-model="chartData.labels"
+					/>
+					<v-select
+						label="Chart Type"
+						:items="['bar', 'doughnut', 'pie']"
+						v-model="chartData.type"
+					>
+					</v-select>
+					<v-btn @click.prevent="generateChart">
+						Generate Chart
+					</v-btn>
+					<v-btn
+						@click.prevent="downloadImage"
+						:disabled="chartData.imageUrl == false ? true : false"
+						>Download Image</v-btn
+					>
+				</v-form>
+			</v-col>
+			<v-col>
 				<div
 					class="placeholder"
 					:class="chartData.imageUrl ? 'd-none' : ''"
 				>
-					Placeholder
+					Generate a chart
 				</div>
 				<img
 					id="chartImage"
@@ -46,9 +57,9 @@
 					alt="Chart"
 					:class="chartData.imageUrl ? 'image-generated' : ''"
 				/>
-			</div>
-		</div>
-	</main>
+			</v-col>
+		</v-row>
+	</v-container>
 </template>
 
 <script setup>
@@ -68,7 +79,7 @@ const chartData = reactive({
 
 const parseData = async () => {
 	let data = chartData.data.split("|");
-	return data.map((item) => item.trim());
+	return data.map((item) => item.replaceAll(",", "").trim());
 };
 
 const parseLabels = async () => {
@@ -97,22 +108,49 @@ const generateChart = async () => {
 
 	chartData.imageUrl = chart;
 };
+
+const downloadImage = async () => {
+	const image = await fetch(chartData.imageUrl);
+	const imageBlog = await image.blob();
+	const imageURL = URL.createObjectURL(imageBlog);
+
+	const link = document.createElement("a");
+	link.href = imageURL;
+	link.download = `Chart-${Date.now()}`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+};
 </script>
 
-<style scoped>
+<style>
+#app {
+	min-height: 100vh;
+	background-color: black;
+	color: white;
+}
+
+#app > div {
+	position: relative;
+	z-index: 1;
+}
+.bg-image {
+	display: block;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 0;
+	height: 100%;
+}
+
 h1 {
 	text-align: center;
 }
 
-main > div {
-	display: flex;
-	gap: 4rem;
-	flex-wrap: wrap;
-}
-
 img {
 	display: none;
-	/* max-width: 100%; */
+	max-width: 90vw;
+	margin: 0 auto;
 }
 
 form {
@@ -125,11 +163,12 @@ form {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	max-width: 80vw;
-	width: 600px;
-	height: 400px;
-	background-color: rebeccapurple;
-	font-size: 72px;
+	max-width: 90vw;
+	margin: 0 auto;
+	width: 750px;
+	height: 450px;
+	border: 4px solid white;
+	font-size: 48px;
 }
 
 .image-generated {

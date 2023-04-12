@@ -1,10 +1,6 @@
 import QuickChart from "quickchart-js";
 
-export const generatePieChart = async (
-	data,
-	labels,
-	title = "Enter a title"
-) => {
+export const generatePieChart = async (data, labels) => {
 	const myChart = new QuickChart();
 	myChart.setConfig({
 		type: "pie",
@@ -13,7 +9,6 @@ export const generatePieChart = async (
 			datasets: [
 				{
 					data: data,
-					label: title,
 					backgroundColor: [
 						"#c27653",
 						"#b63e63",
@@ -25,9 +20,39 @@ export const generatePieChart = async (
 			],
 		},
 		options: {
+			legend: {
+				display: false,
+			},
+			layout: {
+				padding: {
+					top: 30,
+					bottom: 30,
+				},
+			},
 			plugins: {
-				legend: {
-					display: false,
+				datalabels: {
+					formatter: (value) => value + "%",
+					labels: {
+						index: {
+							color: "#fff",
+							font: {
+								size: 18,
+							},
+							formatter: (val, ctx) =>
+								ctx.chart.data.labels[ctx.dataIndex],
+							align: "end",
+							anchor: "end",
+						},
+						value: {
+							color: "#404040",
+							backgroundColor: "#fff",
+							borderColor: "#fff",
+							borderWidth: 2,
+							borderRadius: 4,
+							padding: 4,
+							align: "bottom",
+						},
+					},
 				},
 			},
 			scales: {
@@ -38,10 +63,12 @@ export const generatePieChart = async (
 					display: false,
 				},
 			},
-			indexAxis: "y",
 		},
 	});
-
+	myChart.setWidth("750");
+	myChart.setHeight("450");
+	myChart.setFormat("svg");
+	myChart.setBackgroundColor("transparent");
 	const url = await myChart.getShortUrl();
 
 	return url;
