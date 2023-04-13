@@ -1,6 +1,6 @@
 <template>
 	<img
-		src="../public/assets/agencies-bg.png"
+		src="/assets/agencies-bg.png"
 		alt="Decorative Background"
 		class="bg-image"
 	/>

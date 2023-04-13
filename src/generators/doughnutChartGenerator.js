@@ -17,27 +17,13 @@ export const generateDoughnutChart = async (data, labels) => {
 						"#31799a",
 					],
 					datalabels: {
+						display: true,
+						align: "center",
+						backgroundColor: "#fff",
+						borderRadius: 3,
 						formatter: (value) => value + "%",
-						labels: {
-							index: {
-								color: "#fff",
-								font: {
-									size: 18,
-								},
-								formatter: (val, ctx) =>
-									ctx.chart.data.labels[ctx.dataIndex],
-								align: "end",
-								anchor: "end",
-							},
-							value: {
-								color: "#404040",
-								backgroundColor: "#fff",
-								borderColor: "#fff",
-								borderWidth: 2,
-								borderRadius: 4,
-								padding: 4,
-								align: "bottom",
-							},
+						font: {
+							size: 26,
 						},
 					},
 				},
@@ -45,7 +31,11 @@ export const generateDoughnutChart = async (data, labels) => {
 		},
 		options: {
 			legend: {
-				display: false,
+				display: true,
+				labels: {
+					fontColor: "#fff",
+					fontSize: 26,
+				},
 			},
 			layout: {
 				padding: {

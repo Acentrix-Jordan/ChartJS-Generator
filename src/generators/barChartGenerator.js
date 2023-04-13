@@ -32,6 +32,7 @@ export const generateBarChart = async (data, labels) => {
 					{
 						ticks: {
 							fontColor: "#fff",
+							fontSize: 26,
 							callback: function (value) {
 								return "£" + value;
 							},
@@ -43,6 +44,7 @@ export const generateBarChart = async (data, labels) => {
 					{
 						ticks: {
 							fontColor: "#fff",
+							fontSize: 26,
 						},
 					},
 				],
