@@ -63,10 +63,17 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
 import { generatePieChart } from "./generators/pieChartGenerator";
 import { generateDoughnutChart } from "./generators/doughnutChartGenerator";
 import { generateBarChart } from "./generators/barChartGenerator";
+import { GET_WP_DATA } from "./api/_WORDPRESS_";
+
+onMounted(() => {
+	GET_WP_DATA()
+		.then((response) => console.log(response.data))
+		.catch((err) => console.log(err.error));
+});
 
 const chartData = reactive({
 	data: "",
