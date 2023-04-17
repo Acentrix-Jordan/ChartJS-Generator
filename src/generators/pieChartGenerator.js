@@ -37,8 +37,9 @@ export const generatePieChart = async (data, labels) => {
 				datalabels: {
 					display: true,
 					align: "center",
-					backgroundColor: "#fff",
+					backgroundColor: "#000",
 					borderRadius: 3,
+					color: "#fff",
 					formatter: (value) => value + "%",
 					font: {
 						size: 26,

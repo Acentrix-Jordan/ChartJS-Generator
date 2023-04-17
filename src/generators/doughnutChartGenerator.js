@@ -25,6 +25,7 @@ export const generateDoughnutChart = async (data, labels) => {
 						font: {
 							size: 26,
 						},
+						color: "#fff",
 					},
 				},
 			],

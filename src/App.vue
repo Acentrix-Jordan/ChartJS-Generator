@@ -60,6 +60,12 @@
 			</v-col>
 		</v-row>
 	</v-container>
+	<!-- <v-select
+		label="Project Name"
+		:items="projectData.names"
+		v-model="projectData.projectIndex"
+		@update:modelValue="selectProjectHandler(projectData.projectIndex)"
+	/> -->
 </template>
 
 <script setup>
@@ -71,9 +77,51 @@ import { GET_WP_DATA } from "./api/_WORDPRESS_";
 
 onMounted(() => {
 	GET_WP_DATA()
-		.then((response) => console.log(response.data))
+		.then((response) => {
+			let projectNames = [];
+			chartData.apiData = JSON.parse(response.data);
+			chartData.apiData.forEach((item) => {
+				projectNames.push(item.acf.portfolio_project_name);
+				projectData.names = projectNames;
+			});
+		})
 		.catch((err) => console.log(err.error));
 });
+
+const projectData = reactive({
+	names: [],
+	projectIndex: null,
+	data: {},
+	revenueChart: {
+		labels: [],
+		data: [],
+	},
+	EBITDAChart: {
+		labels: [],
+		data: [],
+	},
+	revenueSourceChart: {
+		labels: [],
+		data: [],
+	},
+	serviceSourceChart: {
+		labels: [],
+		data: [],
+	},
+	clientProfileChart: {
+		labels: [],
+		data: [],
+	},
+	industriesServedChart: {
+		labels: [],
+		data: [],
+	},
+});
+
+const selectProjectHandler = (project) => {
+	const projectIndex = projectData.names.indexOf(project);
+	projectData.data = chartData.apiData[projectIndex].acf;
+};
 
 const chartData = reactive({
 	data: "",
@@ -82,6 +130,7 @@ const chartData = reactive({
 	sanitisedData: [],
 	sanitisedLabels: [],
 	imageUrl: false,
+	apiData: [],
 });
 
 const parseData = async () => {

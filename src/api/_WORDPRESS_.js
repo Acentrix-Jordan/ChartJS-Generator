@@ -1,11 +1,7 @@
 let myHeaders = new Headers();
 myHeaders.append(
 	"Authorization",
-	"Basic QWNlbnRyaXhfSm9yZGFuOl4oOXhEdnBkQnpxZlQ4aiVIOW0zM3B1RQ==",
-	"Access-Control-Request-Method",
-	"GET",
-	"Access-Control-Request-Headers",
-	"Content-Type, Authorization"
+	"Basic QWNlbnRyaXhfSm9yZGFuOjdENEt3ajU1dFRGbkVDS2dxOUFuZnJBVw=="
 );
 
 let requestOptions = {
