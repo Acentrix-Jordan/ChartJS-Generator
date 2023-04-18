@@ -15,6 +15,11 @@ export const generatePieChart = async (data, labels) => {
 						"#711b7a",
 						"#342492",
 						"#31799a",
+						"#c27653",
+						"#b63e63",
+						"#711b7a",
+						"#342492",
+						"#31799a",
 					],
 				},
 			],
@@ -36,7 +41,7 @@ export const generatePieChart = async (data, labels) => {
 			plugins: {
 				datalabels: {
 					display: true,
-					align: "center",
+					align: "end",
 					backgroundColor: "#000",
 					borderRadius: 3,
 					color: "#fff",

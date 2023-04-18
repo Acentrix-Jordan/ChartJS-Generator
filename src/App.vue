@@ -6,66 +6,56 @@
 	/>
 	<v-container>
 		<h1 class="text-h3 mb-16 mt-8">Agencies Chart Generator</h1>
-		<v-row>
-			<v-col>
+		<v-row justify="center">
+			<v-col
+				cols="12"
+				md="8"
+				lg="4"
+			>
 				<v-form>
-					<p>
-						Data <strong>MUST</strong> be pipe seperated.<br />
-						Example: 1 | 2 | 3 | 4
-					</p>
-					<v-text-field
-						type="text"
-						placeholder="Data"
-						v-model="chartData.data"
-						id="data"
-					/>
-					<p>
-						Labels <strong>MUST</strong> be pipe seperated.<br />
-						Example: 2019 | 2020 | 2021 | 2022
-					</p>
-					<v-text-field
-						type="text"
-						placeholder="Labels"
-						v-model="chartData.labels"
-					/>
 					<v-select
-						label="Chart Type"
-						:items="['bar', 'doughnut', 'pie']"
-						v-model="chartData.type"
-					>
-					</v-select>
-					<v-btn @click.prevent="generateChart">
-						Generate Chart
-					</v-btn>
+						label="Project Name"
+						:items="projectData.names"
+						v-model="projectData.projectIndex"
+						@update:modelValue="
+							selectProjectHandler(projectData.projectIndex)
+						"
+					/>
 					<v-btn
-						@click.prevent="downloadImage"
-						:disabled="chartData.imageUrl == false ? true : false"
+						@click.prevent="generateCharts"
+						:disabled="appData.loading"
+					>
+						Generate Charts
+					</v-btn>
+					<v-progress-linear
+						v-if="appData.loading"
+						color="#c27653"
+						model-value="20"
+						:height="4"
+						indeterminate
+					></v-progress-linear>
+					<v-btn
+						@click.prevent="downloadImages"
+						:disabled="appData.imageUrls == false ? true : false"
 						>Download Image</v-btn
 					>
 				</v-form>
 			</v-col>
-			<v-col>
-				<div
-					class="placeholder"
-					:class="chartData.imageUrl ? 'd-none' : ''"
-				>
-					Generate a chart
-				</div>
+			<v-col
+				cols="12"
+				sm="12"
+				lg="8"
+			>
 				<img
+					v-for="image in appData.imageUrls"
 					id="chartImage"
-					:src="chartData.imageUrl"
+					:src="image"
 					alt="Chart"
-					:class="chartData.imageUrl ? 'image-generated' : ''"
+					:class="appData.imageUrls ? 'image-generated' : ''"
 				/>
 			</v-col>
 		</v-row>
 	</v-container>
-	<!-- <v-select
-		label="Project Name"
-		:items="projectData.names"
-		v-model="projectData.projectIndex"
-		@update:modelValue="selectProjectHandler(projectData.projectIndex)"
-	/> -->
 </template>
 
 <script setup>
@@ -79,13 +69,19 @@ onMounted(() => {
 	GET_WP_DATA()
 		.then((response) => {
 			let projectNames = [];
-			chartData.apiData = JSON.parse(response.data);
-			chartData.apiData.forEach((item) => {
+			appData.apiData = JSON.parse(response.data);
+			appData.apiData.forEach((item) => {
 				projectNames.push(item.acf.portfolio_project_name);
 				projectData.names = projectNames;
 			});
 		})
 		.catch((err) => console.log(err.error));
+});
+
+const appData = reactive({
+	imageUrls: [],
+	apiData: [],
+	loading: false,
 });
 
 const projectData = reactive({
@@ -120,62 +116,164 @@ const projectData = reactive({
 
 const selectProjectHandler = (project) => {
 	const projectIndex = projectData.names.indexOf(project);
-	projectData.data = chartData.apiData[projectIndex].acf;
+	projectData.data = appData.apiData[projectIndex].acf;
+
+	// Revenue Data
+	projectData.data.revenue_data.forEach((item) => {
+		projectData.revenueChart.labels.push(item.revenue_label);
+		projectData.revenueChart.data.push(item.revenue_figure);
+	});
+
+	// EBITDA Chart
+	projectData.data.ebitda_data.forEach((item) => {
+		projectData.EBITDAChart.labels.push(item.ebita_label);
+		projectData.EBITDAChart.data.push(item.ebitda_figure);
+	});
+
+	// Service Source Chart
+	projectData.data.service_source_data.forEach((item) => {
+		projectData.serviceSourceChart.labels.push(item.service_source_label);
+		projectData.serviceSourceChart.data.push(item.service_source_figure);
+	});
+
+	// Industries Served
+	projectData.data.industries_served_data.forEach((item) => {
+		projectData.industriesServedChart.labels.push(
+			item.industries_served_label
+		);
+		projectData.industriesServedChart.data.push(
+			item.industries_served_figure
+		);
+	});
+
+	// Client Profile
+	projectData.clientProfileChart = {
+		labels: [...Object.keys(projectData.data.client_profile)],
+		data: [...Object.values(projectData.data.client_profile)],
+	};
+
+	// Sanitise Client Profile Data
+	projectData.clientProfileChart.labels.forEach((label, index) => {
+		if (label.includes("b2b")) {
+			projectData.clientProfileChart.labels[index] = "B2B";
+		} else {
+			projectData.clientProfileChart.labels[index] = "B2C";
+		}
+	});
+
+	// Revenue Source Chart
+	projectData.revenueSourceChart = {
+		labels: [...Object.keys(projectData.data.revenue_source)],
+		data: [...Object.values(projectData.data.revenue_source)],
+	};
+
+	// Sanitise Revenue Source Data
+	projectData.revenueSourceChart.labels.forEach((label, index) => {
+		if (label.includes("retainer")) {
+			projectData.revenueSourceChart.labels[index] = "Retainer";
+		} else {
+			projectData.revenueSourceChart.labels[index] = "Project";
+		}
+	});
 };
 
-const chartData = reactive({
-	data: "",
-	labels: "",
-	type: "bar",
-	sanitisedData: [],
-	sanitisedLabels: [],
-	imageUrl: false,
-	apiData: [],
-});
+const generateCharts = async () => {
+	appData.loading = true;
 
-const parseData = async () => {
-	let data = chartData.data.split("|");
-	return data.map((item) => item.replaceAll(",", "").trim());
+	const revenueChart = await generateBarChart(
+		projectData.revenueChart.data,
+		projectData.revenueChart.labels
+	);
+
+	const EBITDAChart = await generateBarChart(
+		projectData.EBITDAChart.data,
+		projectData.EBITDAChart.labels
+	);
+
+	const revenueSourceChart = await generateDoughnutChart(
+		projectData.revenueSourceChart.data,
+		projectData.revenueSourceChart.labels
+	);
+
+	const serviceSourceChart = await generateDoughnutChart(
+		projectData.revenueSourceChart.data,
+		projectData.revenueSourceChart.labels
+	);
+
+	const clientProfileChart = await generatePieChart(
+		projectData.clientProfileChart.data,
+		projectData.clientProfileChart.labels
+	);
+
+	const industriesServedChart = await generatePieChart(
+		projectData.industriesServedChart.data,
+		projectData.industriesServedChart.labels
+	);
+
+	appData.imageUrls = [
+		revenueChart,
+		EBITDAChart,
+		revenueSourceChart,
+		serviceSourceChart,
+		clientProfileChart,
+		industriesServedChart,
+	];
+
+	setTimeout(() => {
+		appData.loading = false;
+
+		// Reset Data after generation
+		projectData = {
+			revenueChart: {
+				data: [],
+				labels: [],
+			},
+			EBITDAChart: {
+				data: [],
+				labels: [],
+			},
+			revenueSourceChart: {
+				data: [],
+				labels: [],
+			},
+			serviceSourceChart: {
+				data: [],
+				labels: [],
+			},
+			clientProfileChart: {
+				data: [],
+				labels: [],
+			},
+			industriesServedChart: {
+				data: [],
+				labels: [],
+			},
+		};
+	}, 1000);
 };
 
-const parseLabels = async () => {
-	let labels = chartData.labels.split("|");
-	return labels.map((item) => item.trim());
-};
+// Loop through all images - Change Download Name
+const downloadImages = async () => {
+	const ChartNames = [
+		"Revenue",
+		"EBITDA",
+		"Revenue-Source",
+		"Service-Source",
+		"Client-Profile",
+		"Industries-Served",
+	];
+	for (let i = 0; i < appData.imageUrls.length; i++) {
+		const image = await fetch(appData.imageUrls[i]);
+		const imageBlog = await image.blob();
+		const imageURL = URL.createObjectURL(imageBlog);
 
-const generateChart = async () => {
-	let data = await parseData();
-	let labels = await parseLabels();
-	let chart = null;
-
-	switch (chartData.type) {
-		case "pie":
-			chart = await generatePieChart(data, labels);
-			break;
-		case "doughnut":
-			chart = await generateDoughnutChart(data, labels);
-			break;
-		case "bar":
-			chart = await generateBarChart(data, labels);
-			break;
-		default:
-			alert("Select a chart type");
+		const link = document.createElement("a");
+		link.href = imageURL;
+		link.download = `Chart-${projectData.projectIndex}-${ChartNames[i]}`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
 	}
-
-	chartData.imageUrl = chart;
-};
-
-const downloadImage = async () => {
-	const image = await fetch(chartData.imageUrl);
-	const imageBlog = await image.blob();
-	const imageURL = URL.createObjectURL(imageBlog);
-
-	const link = document.createElement("a");
-	link.href = imageURL;
-	link.download = `Chart-${Date.now()}`;
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
 };
 </script>
 

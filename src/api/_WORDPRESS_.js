@@ -4,6 +4,8 @@ myHeaders.append(
 	"Basic QWNlbnRyaXhfSm9yZGFuOjdENEt3ajU1dFRGbkVDS2dxOUFuZnJBVw=="
 );
 
+myHeaders.append("Accept", "application/json");
+
 let requestOptions = {
 	method: "GET",
 	headers: myHeaders,
