@@ -37,7 +37,7 @@
 					<v-btn
 						@click.prevent="downloadImages"
 						:disabled="appData.imageUrls == false ? true : false"
-						>Download Image</v-btn
+						>Download Images</v-btn
 					>
 				</v-form>
 			</v-col>
@@ -196,8 +196,8 @@ const generateCharts = async () => {
 	);
 
 	const serviceSourceChart = await generateDoughnutChart(
-		projectData.revenueSourceChart.data,
-		projectData.revenueSourceChart.labels
+		projectData.serviceSourceChart.data,
+		projectData.serviceSourceChart.labels
 	);
 
 	const clientProfileChart = await generatePieChart(
