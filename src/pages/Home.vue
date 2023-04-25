@@ -231,18 +231,22 @@ const generateCharts = async () => {
 			data: [],
 			labels: [],
 		};
+
 		projectData.revenueSourceChart = {
 			data: [],
 			labels: [],
 		};
+
 		projectData.serviceSourceChart = {
 			data: [],
 			labels: [],
 		};
+
 		projectData.clientProfileChart = {
 			data: [],
 			labels: [],
 		};
+
 		projectData.industriesServedChart = {
 			data: [],
 			labels: [],
